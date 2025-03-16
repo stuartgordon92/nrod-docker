@@ -476,10 +476,6 @@ def sort_trust_messages(trust_input_rabbit):
         else:
             msg_toc = '00'
 
-        if 'train_terminated' in msg['body']:
-            if msg['body']['train_terminated'] == 'True':
-                msg_toc = '99'
-
         trust_msg.append([msg, msg_type, msg_toc])
     return trust_msg
 
