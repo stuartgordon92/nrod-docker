@@ -1,0 +1,15 @@
+# Use Maven to build the project
+FROM maven:3.8.7-openjdk-18-slim AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Run the built JAR
+FROM openjdk:24-ea-17-jdk-slim-bullseye
+WORKDIR /deployments
+COPY --from=build /app/target/camel-app-1.0.0.jar application.jar
+COPY src/main/resources/camel.xml /deployments/camel.xml 
+
+CMD ["java", "-jar", "application.jar"]

@@ -1,0 +1,39 @@
+name: NROD Docker
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # RabbitMQ broker port
+      - "15672:15672" # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_LOADED_PLUGINS_FILE: /etc/rabbitmq/enabled_plugins
+    restart: always
+
+  camel:
+    build: ./camel  # Build the Camel Spring Boot app
+    container_name: camel
+    depends_on:
+      - rabbitmq
+      - validator_td
+      - validator_trust
+    restart: always
+
+  validator_td:
+    build: ./validator_td
+    container_name: validator_td
+    env_file:
+      - ./validator_td/.env
+    depends_on:
+      - rabbitmq
+
+  validator_trust:
+    build: ./validator_trust
+    container_name: validator_trust
+    env_file:
+      - ./validator_trust/.env
+    depends_on:
+      - rabbitmq
